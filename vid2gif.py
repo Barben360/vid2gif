@@ -1,31 +1,20 @@
 #!/usr/bin/env python3
 
 import argparse
-import tempfile
 import ffmpeg
 import os
 import shutil
 
 
-def vid2gif(src, dst, resize=1.0, set_size=-1.0, start_time=-1.0, stop_time=-1.0, fps=-1):
-    # Checking if --resize and --set-size are not used in the same time
-    if args.resize and args.set_size:
-        print("Error: resize and set_size can't be used in the same time")
-        exit
+def vid2gif(src, dst, scale="", start_time=-1.0, stop_time=-1.0, fps=-1):
 
-    # Creating temp folder to work into it
-    palette_dir = tempfile.mkdtemp()
-    current_dir = os.getcwd()
-    palette_file = os.path.join(current_dir, palette_dir, "palette.png")
-    print(palette_file)
-
-    # TODO
-    # stream = ffmpeg.input(src)
-    # stream = ffmpeg.concat()
-    # stream = ffmpeg.output(palette_file)
-
-    # Removing temp folder
-    shutil.rmtree(os.path.join(current_dir, palette_dir))
+    # ffmpeg -y -i in.mp4 -t 30 -filter_complex "fps=10,scale=-1:-1:flags=lanczos[x];[0:v]palettegen[y];[x][y]paletteuse" out.gif
+    stream = ffmpeg.input(src)
+    if fps >= 1:
+        stream = ffmpeg.filter(stream, 'fps', fps)
+    if scale.size() > 0:
+        stream = ffmpeg.filter(stream, 'scale', scale)
+    
 
 
 if __name__ == '__main__':
@@ -47,5 +36,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    vid2gif(args.src, args.dst, args.resize, args.set_size,
+    if resize > 0 and set_size > 0:
+        print("Error: resize and set_size can't be used in the same time")
+        exit
+    scale = ""
+    if resize > 0:
+        scale=""
+    elif set_size > 0:
+        
+
+    vid2gif(args.src, args.dst, ,
             args.start_time, args.stop_time, args.fps)
